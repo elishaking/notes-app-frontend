@@ -5,6 +5,7 @@ import LoaderButton from "../components/LoaderButton";
 import config from "../config";
 import "./Notes.scss";
 import { Note } from "../models/note";
+import { s3Upload } from "../utils/aws";
 
 export default function Notes(props: any) {
   const file = useRef<any>(null);
@@ -63,6 +64,27 @@ export default function Notes(props: any) {
     }
 
     setIsLoading(true);
+
+    try {
+      if (file.current) {
+        attachment = await s3Upload(file.current);
+      }
+
+      await saveNote({
+        content,
+        attachment: attachment || (note as Note).attachment
+      });
+      props.history.push("/");
+    } catch (e) {
+      alert(e);
+      setIsLoading(false);
+    }
+  }
+
+  function saveNote(note: Note) {
+    return API.put("notes", `/notes/${props.match.params.id}`, {
+      body: note
+    });
   }
 
   async function handleDelete(event: any) {
