@@ -5,6 +5,7 @@ import Login from "./containers/Login";
 import NotFound from "./containers/NotFound";
 import AppliedRoute from "./components/AppliedRoute";
 import Signup from "./containers/Signup";
+import NewNote from "./containers/NewNote";
 
 export default function Routes({ appProps }: any) {
   return (
@@ -15,6 +16,12 @@ export default function Routes({ appProps }: any) {
         path="/signup"
         exact
         component={Signup}
+        appProps={appProps}
+      />
+      <AppliedRoute
+        path="/notes/new"
+        exact
+        component={NewNote}
         appProps={appProps}
       />
 
