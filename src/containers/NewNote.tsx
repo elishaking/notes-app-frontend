@@ -5,11 +5,7 @@ import config from "../config";
 import "./NewNote.scss";
 import { API } from "aws-amplify";
 import { s3Upload } from "../utils/aws";
-
-interface Note {
-  content: string;
-  attachment: any;
-}
+import { Note } from "../models/note";
 
 export default function NewNote(props: any) {
   const file = useRef<any>(null);
