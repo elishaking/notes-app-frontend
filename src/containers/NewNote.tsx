@@ -3,6 +3,7 @@ import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import LoaderButton from "../components/LoaderButton";
 import config from "../config";
 import "./NewNote.scss";
+import { API } from "aws-amplify";
 
 export default function NewNote(props: any) {
   const file = useRef<any>(null);
@@ -29,6 +30,20 @@ export default function NewNote(props: any) {
     }
 
     setIsLoading(true);
+
+    try {
+      await createNote({ content });
+      props.history.push("/");
+    } catch (e) {
+      alert(e);
+      setIsLoading(false);
+    }
+  }
+
+  function createNote(note: { content: string }) {
+    return API.post("notes", "/notes", {
+      body: note
+    });
   }
 
   return (
