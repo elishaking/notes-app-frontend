@@ -4,18 +4,21 @@ import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
 import { Auth } from "aws-amplify";
 import LoaderButton from "../components/LoaderButton";
+import { useFormFields } from "../utils/hooks";
 
 interface LoginProps extends RouteComponentProps {
   userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function Login(props: LoginProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [fields, handleFieldChange] = useFormFields({
+    email: "",
+    password: ""
+  });
 
   function validateForm() {
-    return email.length > 0 && password.length > 0;
+    return fields.email.length > 0 && fields.password.length > 0;
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -23,7 +26,7 @@ export default function Login(props: LoginProps) {
 
     setIsLoading(true);
 
-    Auth.signIn(email, password)
+    Auth.signIn(fields.email, fields.password)
       .then(() => {
         props.userHasAuthenticated(true);
         props.history.push("/");
@@ -31,7 +34,7 @@ export default function Login(props: LoginProps) {
       .catch(e => {
         alert(e.message);
         setIsLoading(false);
-        setPassword("");
+        // setPassword("");
       });
   }
 
@@ -43,16 +46,16 @@ export default function Login(props: LoginProps) {
           <FormControl
             autoFocus
             type="email"
-            value={email}
-            onChange={(e: any) => setEmail(e.target.value)}
+            value={fields.email}
+            onChange={handleFieldChange}
           />
         </FormGroup>
 
         <FormGroup controlId="password" bsSize="large">
           <ControlLabel>Password</ControlLabel>
           <FormControl
-            value={password}
-            onChange={(e: any) => setPassword(e.target.value)}
+            value={fields.password}
+            onChange={handleFieldChange}
             type="password"
           />
         </FormGroup>
