@@ -3,7 +3,11 @@ import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
 import { Auth } from "aws-amplify";
 
-export default function Login(props: any) {
+interface LoginProps {
+  userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function Login(props: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,7 +20,7 @@ export default function Login(props: any) {
 
     Auth.signIn(email, password)
       .then(() => {
-        alert("Logged in");
+        props.userHasAuthenticated(true);
       })
       .catch(e => {
         alert(e.message);
