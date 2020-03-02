@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
 import { Auth } from "aws-amplify";
+import LoaderButton from "../components/LoaderButton";
 
 interface LoginProps extends RouteComponentProps {
   userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
@@ -11,6 +12,7 @@ interface LoginProps extends RouteComponentProps {
 export default function Login(props: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   function validateForm() {
     return email.length > 0 && password.length > 0;
@@ -19,6 +21,8 @@ export default function Login(props: LoginProps) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setIsLoading(true);
+
     Auth.signIn(email, password)
       .then(() => {
         props.userHasAuthenticated(true);
@@ -26,6 +30,8 @@ export default function Login(props: LoginProps) {
       })
       .catch(e => {
         alert(e.message);
+        setIsLoading(false);
+        setPassword("");
       });
   }
 
@@ -41,6 +47,7 @@ export default function Login(props: LoginProps) {
             onChange={(e: any) => setEmail(e.target.value)}
           />
         </FormGroup>
+
         <FormGroup controlId="password" bsSize="large">
           <ControlLabel>Password</ControlLabel>
           <FormControl
@@ -49,9 +56,16 @@ export default function Login(props: LoginProps) {
             type="password"
           />
         </FormGroup>
-        <Button block bsSize="large" disabled={!validateForm()} type="submit">
+
+        <LoaderButton
+          block
+          type="submit"
+          bsSize="large"
+          isLoading={isLoading}
+          disabled={!validateForm()}
+        >
           Login
-        </Button>
+        </LoaderButton>
       </form>
     </div>
   );
