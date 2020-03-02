@@ -87,6 +87,10 @@ export default function Notes(props: any) {
     });
   }
 
+  function deleteNote() {
+    return API.del("notes", `/notes/${props.match.params.id}`, undefined);
+  }
+
   async function handleDelete(event: any) {
     event.preventDefault();
 
@@ -99,6 +103,14 @@ export default function Notes(props: any) {
     }
 
     setIsDeleting(true);
+
+    try {
+      await deleteNote();
+      props.history.push("/");
+    } catch (e) {
+      alert(e);
+      setIsDeleting(false);
+    }
   }
 
   return (
