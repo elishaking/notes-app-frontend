@@ -3,7 +3,7 @@ import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
 import { Auth } from "aws-amplify";
 
-export default function Login(props: {}) {
+export default function Login(props: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
