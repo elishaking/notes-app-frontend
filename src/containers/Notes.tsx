@@ -1,10 +1,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import { API, Storage } from "aws-amplify";
+import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import LoaderButton from "../components/LoaderButton";
+import config from "../config";
+import "./Notes.scss";
+import { Note } from "../models/note";
 
 export default function Notes(props: any) {
-  const file = useRef(null);
-  const [note, setNote] = useState(null);
+  const file = useRef<any>(null);
+  const [note, setNote] = useState<Note | null>(null);
   const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     function loadNote() {
@@ -30,5 +37,98 @@ export default function Notes(props: any) {
     onLoad();
   }, [props.match.params.id]);
 
-  return <div className="Notes"></div>;
+  function validateForm() {
+    return content.length > 0;
+  }
+
+  function formatFilename(str: string) {
+    return str.replace(/^\w+-/, "");
+  }
+
+  function handleFileChange(event: any) {
+    file.current = event.target.files[0];
+  }
+
+  async function handleSubmit(event: any) {
+    let attachment;
+
+    event.preventDefault();
+
+    if (file.current && file.current.size > config.MAX_ATTACHMENT_SIZE) {
+      alert(
+        `Please pick a file smaller than ${config.MAX_ATTACHMENT_SIZE /
+          1000000} MB.`
+      );
+      return;
+    }
+
+    setIsLoading(true);
+  }
+
+  async function handleDelete(event: any) {
+    event.preventDefault();
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this note?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+  }
+
+  return (
+    <div className="Notes">
+      {note && (
+        <form onSubmit={handleSubmit}>
+          <FormGroup controlId="content">
+            <FormControl
+              value={content}
+              componentClass="textarea"
+              onChange={(e: any) => setContent(e.target.value)}
+            />
+          </FormGroup>
+          {note.attachment && (
+            <FormGroup>
+              <ControlLabel>Attachment</ControlLabel>
+              <FormControl.Static>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={note.attachmentURL}
+                >
+                  {formatFilename(note.attachment)}
+                </a>
+              </FormControl.Static>
+            </FormGroup>
+          )}
+          <FormGroup controlId="file">
+            {!note.attachment && <ControlLabel>Attachment</ControlLabel>}
+            <FormControl onChange={handleFileChange} type="file" />
+          </FormGroup>
+          <LoaderButton
+            block
+            type="submit"
+            bsSize="large"
+            bsStyle="primary"
+            isLoading={isLoading}
+            disabled={!validateForm()}
+          >
+            Save
+          </LoaderButton>
+          <LoaderButton
+            block
+            bsSize="large"
+            bsStyle="danger"
+            onClick={handleDelete}
+            isLoading={isDeleting}
+          >
+            Delete
+          </LoaderButton>
+        </form>
+      )}
+    </div>
+  );
 }

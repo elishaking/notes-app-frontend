@@ -3,4 +3,5 @@ export interface Note {
   createdAt?: any;
   content: string;
   attachment: any;
+  attachmentURL?: any;
 }
