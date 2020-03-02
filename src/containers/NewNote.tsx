@@ -4,6 +4,12 @@ import LoaderButton from "../components/LoaderButton";
 import config from "../config";
 import "./NewNote.scss";
 import { API } from "aws-amplify";
+import { s3Upload } from "../utils/aws";
+
+interface Note {
+  content: string;
+  attachment: any;
+}
 
 export default function NewNote(props: any) {
   const file = useRef<any>(null);
@@ -32,7 +38,9 @@ export default function NewNote(props: any) {
     setIsLoading(true);
 
     try {
-      await createNote({ content });
+      const attachment = file.current ? await s3Upload(file.current) : null;
+
+      await createNote({ content, attachment });
       props.history.push("/");
     } catch (e) {
       alert(e);
@@ -40,7 +48,7 @@ export default function NewNote(props: any) {
     }
   }
 
-  function createNote(note: { content: string }) {
+  function createNote(note: Note) {
     return API.post("notes", "/notes", {
       body: note
     });
