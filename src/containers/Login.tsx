@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
+import { Auth } from "aws-amplify";
 
 export default function Login(props: {}) {
   const [email, setEmail] = useState("");
@@ -12,6 +13,14 @@ export default function Login(props: {}) {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    Auth.signIn(email, password)
+      .then(() => {
+        alert("Logged in");
+      })
+      .catch(e => {
+        alert(e.message);
+      });
   }
 
   return (
