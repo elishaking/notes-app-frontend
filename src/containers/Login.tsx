@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { RouteComponentProps } from "react-router-dom";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
 import { Auth } from "aws-amplify";
 
-interface LoginProps {
+interface LoginProps extends RouteComponentProps {
   userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -21,6 +22,7 @@ export default function Login(props: LoginProps) {
     Auth.signIn(email, password)
       .then(() => {
         props.userHasAuthenticated(true);
+        props.history.push("/");
       })
       .catch(e => {
         alert(e.message);
