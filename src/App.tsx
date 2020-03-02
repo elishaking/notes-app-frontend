@@ -10,6 +10,7 @@ function App() {
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [isAuthenticated, userHasAuthenticated] = useState(false);
 
+  // calls onLoad only once to retrieve user auth status
   useEffect(() => {
     onLoad();
   }, []);
@@ -27,7 +28,9 @@ function App() {
     setIsAuthenticating(false);
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    await Auth.signOut();
+
     userHasAuthenticated(false);
   }
 
