@@ -5,6 +5,8 @@ import {
   FormControl,
   ControlLabel
 } from "react-bootstrap";
+import { Auth } from "aws-amplify";
+import { ISignUpResult } from "amazon-cognito-identity-js";
 import LoaderButton from "../components/LoaderButton";
 import { useFormFields } from "../utils/hooks";
 import "./Signup.scss";
@@ -16,7 +18,7 @@ export default function Signup(props: any) {
     confirmPassword: "",
     confirmationCode: ""
   });
-  const [newUser, setNewUser] = useState("");
+  const [newUser, setNewUser] = useState<ISignUpResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   function validateForm() {
@@ -36,15 +38,34 @@ export default function Signup(props: any) {
 
     setIsLoading(true);
 
-    setNewUser("test");
-
-    setIsLoading(false);
+    try {
+      const newUser = await Auth.signUp({
+        username: fields.email,
+        password: fields.password
+      });
+      setIsLoading(false);
+      setNewUser(newUser);
+    } catch (e) {
+      alert(e.message);
+      setIsLoading(false);
+    }
   }
 
   async function handleConfirmationSubmit(event: any) {
     event.preventDefault();
 
     setIsLoading(true);
+
+    try {
+      await Auth.confirmSignUp(fields.email, fields.confirmationCode);
+      await Auth.signIn(fields.email, fields.password);
+
+      props.userHasAuthenticated(true);
+      props.history.push("/");
+    } catch (e) {
+      alert(e.message);
+      setIsLoading(false);
+    }
   }
 
   function renderConfirmationForm() {
